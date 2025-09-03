@@ -62,3 +62,62 @@ exports.registerCompany = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+exports.getCompanyProfile = async (req, res) => {
+     try {
+         const userId = req.user.id; // Get user ID from auth middleware
+
+         const companyProfile = await CompanyProfile.findOne({ user_id: userId });
+
+         if (!companyProfile) {
+             return res.status(200).json({ success: true, profile: null, message: 'No company profile found for this user.' }); // Or a 404 if you prefer.
+         }
+
+         res.status(200).json({ success: true, profile: companyProfile });
+     } catch (error) {
+         console.error('Error fetching company profile:', error);
+         res.status(500).json({ message: 'Server error' });
+     }
+ };
+
+ exports.updateCompanyProfile = async (req, res) => {
+     try {
+         const userId = req.user.id;
+         const { companyName, businessID, vatNumber, industry, contactPerson, emailAddress, phoneNumber, billingAddress, preferredPaymentMethod, estimatedWorkforceNeeds, preferredWorkSectors } = req.body;
+
+         const profileData = {
+             companyName,
+             businessID,
+             vatNumber,
+             industry,
+             contactPerson,
+             emailAddress,
+             phoneNumber,
+             billingAddress,
+             preferredPaymentMethod,
+             estimatedWorkforceNeeds,
+             preferredWorkSectors,
+         };
+
+         if (req.files['taxDebtCertificate'] && req.files['taxDebtCertificate'][0]) {
+             profileData.taxDebtCertificateFilename = req.files['taxDebtCertificate'][0].filename;
+         }
+         if (req.files['pensionInsuranceCertificate'] && req.files['pensionInsuranceCertificate'][0]) {
+             profileData.pensionInsuranceCertificateFilename = req.files['pensionInsuranceCertificate'][0].filename;
+         }
+         if (req.files['workersCompensationInsurance'] && req.files['workersCompensationInsurance'][0]) {
+             profileData.workersCompensationInsuranceFilename = req.files['workersCompensationInsurance'][0].filename;
+         }
+
+         const updatedProfile = await CompanyProfile.findOneAndUpdate({ user_id: userId }, profileData, { new: true, runValidators: true });
+
+         if (!updatedProfile) {
+             return res.status(404).json({ success: false, message: 'Company profile not found.' });
+         }
+
+         res.status(200).json({ success: true, message: 'Company profile updated successfully', profile: updatedProfile });
+     } catch (error) {
+         console.error('Error updating company profile:', error);
+         res.status(500).json({ message: 'Server error' });
+     }
+ };

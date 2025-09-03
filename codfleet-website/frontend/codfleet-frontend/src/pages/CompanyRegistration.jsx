@@ -28,68 +28,95 @@ const FileUpload = ({ title, file, onFileChange }) => {
 
 const CompanyRegistration = () => {
     // --- State Management (Existing fields) ---
-    const [companyName, setCompanyName] = useState('');
-    const [businessID, setBusinessID] = useState('');
-    const [vatNumber, setVatNumber] = useState('');
-    const [industry, setIndustry] = useState('');
-    const [contactPerson, setContactPerson] = useState('');
-    const [emailAddress, setEmailAddress] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [billingAddress, setBillingAddress] = useState('');
-    const [preferredPaymentMethod, setPreferredPaymentMethod] = useState('');
-    const [estimatedWorkforceNeeds, setEstimatedWorkforceNeeds] = useState('');
-    const [preferredWorkSectors, setPreferredWorkSectors] = useState('');
-    const [termsOfService, setTermsOfService] = useState(false);
-    const [privacyPolicy, setPrivacyPolicy] = useState(false);
-    
-    // File states
-    const [taxDebtCertificate, setTaxDebtCertificate] = useState(null);
-    const [pensionInsuranceCertificate, setPensionInsuranceCertificate] = useState(null);
-    const [workersCompensationInsurance, setWorkersCompensationInsurance] = useState(null);
+    const [formData, setFormData] = useState({
+        _id: null, // For update/create detection
+        companyName: '',
+        businessID: '',
+        vatNumber: '',
+        industry: '',
+        contactPerson: '',
+        emailAddress: '',
+        phoneNumber: '',
+        billingAddress: '',
+        preferredPaymentMethod: '',
+        estimatedWorkforceNeeds: '',
+        preferredWorkSectors: '',
+        termsOfService: false,
+        privacyPolicy: false,
+        taxDebtCertificate: null,
+        pensionInsuranceCertificate: null,
+        workersCompensationInsurance: null,
+    });
 
     // General Component State
     const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [editing, setEditing] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const storedToken = localStorage.getItem('authToken');
-        const user = JSON.parse(localStorage.getItem('user'));
-        
-        if (!storedToken) {
-            navigate('/login');
-        }
-        if (user) {
-            setEmailAddress(user.email); // Pre-fill email from logged-in user
-        }
+        const fetchProfile = async () => {
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await axios.get('http://localhost:5000/api/company/company-profile', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+
+                if (response.data.profile) {
+                    setFormData(response.data.profile); // Load existing profile data
+                    setEditing(false); // Start in "view" mode
+                }
+            } catch (error) {
+                console.error('Error fetching company profile:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProfile();
     }, [navigate]);
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleFileChange = (name, file) => {
+        setFormData({ ...formData, [name]: file });
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         setMessage('');
 
-        const formData = new FormData();
-        formData.append('companyName', companyName);
-        formData.append('businessID', businessID);
-        formData.append('vatNumber', vatNumber);
-        formData.append('industry', industry);
-        formData.append('contactPerson', contactPerson);
-        formData.append('emailAddress', emailAddress);
-        formData.append('phoneNumber', phoneNumber);
-        formData.append('billingAddress', billingAddress);
-        formData.append('preferredPaymentMethod', preferredPaymentMethod);
-        formData.append('estimatedWorkforceNeeds', estimatedWorkforceNeeds);
-        formData.append('preferredWorkSectors', preferredWorkSectors);
-        formData.append('termsOfService', termsOfService);
-        formData.append('privacyPolicy', privacyPolicy);
+        const isUpdate = !!formData._id; // Determine if it's an update or a create
+        const url = isUpdate ? 'http://localhost:5000/api/company/company-profile/update' : 'http://localhost:5000/api/company/register';
+        const method = isUpdate ? 'PUT' : 'POST';
 
-        if (taxDebtCertificate) formData.append('taxDebtCertificate', taxDebtCertificate);
-        if (pensionInsuranceCertificate) formData.append('pensionInsuranceCertificate', pensionInsuranceCertificate);
-        if (workersCompensationInsurance) formData.append('workersCompensationInsurance', workersCompensationInsurance);
-        
+        const formDataToSend = new FormData();
+        formDataToSend.append('companyName', formData.companyName);
+        formDataToSend.append('businessID', formData.businessID);
+        formDataToSend.append('vatNumber', formData.vatNumber);
+        formDataToSend.append('industry', formData.industry);
+        formDataToSend.append('contactPerson', formData.contactPerson);
+        formDataToSend.append('emailAddress', formData.emailAddress);
+        formDataToSend.append('phoneNumber', formData.phoneNumber);
+        formDataToSend.append('billingAddress', formData.billingAddress);
+        formDataToSend.append('preferredPaymentMethod', formData.preferredPaymentMethod);
+        formDataToSend.append('estimatedWorkforceNeeds', formData.estimatedWorkforceNeeds);
+        formDataToSend.append('preferredWorkSectors', formData.preferredWorkSectors);
+        formDataToSend.append('termsOfService', formData.termsOfService);
+        formDataToSend.append('privacyPolicy', formData.privacyPolicy);
+
+        if (formData.taxDebtCertificate) formDataToSend.append('taxDebtCertificate', formData.taxDebtCertificate);
+        if (formData.pensionInsuranceCertificate) formDataToSend.append('pensionInsuranceCertificate', formData.pensionInsuranceCertificate);
+        if (formData.workersCompensationInsurance) formDataToSend.append('workersCompensationInsurance', formData.workersCompensationInsurance);
+
         try {
             const token = localStorage.getItem('authToken');
-            const backendURL = 'http://localhost:5000';
-            const response = await axios.post(`${backendURL}/api/company/register`, formData, {
+            const response = await axios({
+                method: method,
+                url: url,
+                data: formDataToSend,
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`,
@@ -97,14 +124,18 @@ const CompanyRegistration = () => {
             });
 
             if (response.data.success) {
+                // Update formData with the updated profile (including _id)
+                setFormData(response.data.profile);
+                setMessage(isUpdate ? 'Company profile updated successfully! Redirecting...' : 'Company profile submitted successfully! Redirecting...');
+
                 const user = JSON.parse(localStorage.getItem('user'));
                 user.hasCompletedProfile = true;
                 localStorage.setItem('user', JSON.stringify(user));
 
-                setMessage('Company profile submitted successfully! Redirecting...');
                 setTimeout(() => {
                     navigate('/dashboard');
                 }, 2000);
+                setEditing(false);
             } else {
                 setMessage(response.data.message || 'Registration failed.');
             }
@@ -114,18 +145,137 @@ const CompanyRegistration = () => {
         }
     };
 
+    if (loading) {
+        return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    }
+
+    // --------------------------
+    // VIEW MODE (Profile exists)
+    // --------------------------
+    if (formData._id && !editing) {
+        return (
+            <div className="bg-gray-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+                    {/* --- Left Column: Main Form --- */}
+                    <div className="lg:col-span-2">
+                        <div className="relative rounded-lg overflow-hidden p-8 mb-8" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1932&auto=format&fit=crop')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                            <div className="absolute inset-0 bg-black opacity-60"></div>
+                            <div className="relative">
+                                <h1 className="text-3xl font-bold text-white">Your Company Profile</h1>
+                                <p className="mt-2 text-gray-200">View and manage your company details.</p>
+                            </div>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-lg shadow-sm">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Company Name</label>
+                                    <p className="mt-1">{formData.companyName}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Business ID</label>
+                                    <p className="mt-1">{formData.businessID}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">VAT Number</label>
+                                    <p className="mt-1">{formData.vatNumber}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Industry</label>
+                                    <p className="mt-1">{formData.industry}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Contact Person</label>
+                                    <p className="mt-1">{formData.contactPerson}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Email Address</label>
+                                    <p className="mt-1">{formData.emailAddress}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                                    <p className="mt-1">{formData.phoneNumber}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Billing Address</label>
+                                    <p className="mt-1">{formData.billingAddress}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Preferred Payment Method</label>
+                                    <p className="mt-1">{formData.preferredPaymentMethod}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Estimated Workforce Needs</label>
+                                    <p className="mt-1">{formData.estimatedWorkforceNeeds}</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Preferred Work Sectors</label>
+                                    <p className="mt-1">{formData.preferredWorkSectors}</p>
+                                </div>
+                            </div>
+
+                            <div className="mt-8 flex justify-end">
+                                <button
+                                    className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg shadow-sm"
+                                    onClick={() => setEditing(true)}
+                                >
+                                    Edit Profile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* --- Right Column: Trust & Safety --- */}
+                    <div className="lg:col-span-1">
+                        <div className="bg-white p-6 rounded-lg shadow-sm sticky top-8">
+                            <h3 className="text-lg font-bold text-gray-900">Trust & Safety</h3>
+                            <p className="text-sm text-gray-600 mt-1">Your information is safe with us.</p>
+                            <ul className="mt-6 space-y-6">
+                                <li className="flex gap-4">
+                                    <Lock className="w-6 h-6 text-gray-500 flex-shrink-0 mt-1" />
+                                    <div>
+                                        <h4 className="font-semibold">Secure Document Storage</h4>
+                                        <p className="text-sm text-gray-600">Your documents are encrypted and stored securely.</p>
+                                    </div>
+                                </li>
+                                <li className="flex gap-4">
+                                    <Shield className="w-6 h-6 text-gray-500 flex-shrink-0 mt-1" />
+                                    <div>
+                                        <h4 className="font-semibold">Vetted Professionals</h4>
+                                        <p className="text-sm text-gray-600">We verify our freelancers to ensure quality and compliance.</p>
+                                    </div>
+                                </li>
+                                <li className="flex gap-4">
+                                    <CheckCircle className="w-6 h-6 text-gray-500 flex-shrink-0 mt-1" />
+                                    <div>
+                                        <h4 className="font-semibold">Compliant & Insured</h4>
+                                        <p className="text-sm text-gray-600">Our platform ensures all legal and insurance requirements are met.</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // --------------------------
+    // EDIT/REGISTER FORM
+    // --------------------------
     return (
         <div className="bg-gray-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
-                
+
                 {/* --- Left Column: Main Form --- */}
                 <div className="lg:col-span-2">
-                    <div className="relative rounded-lg overflow-hidden p-8 mb-8" style={{backgroundImage: "url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1932&auto=format&fit=crop')", backgroundSize: 'cover', backgroundPosition: 'center'}}>
-                         <div className="absolute inset-0 bg-black opacity-60"></div>
-                         <div className="relative">
-                            <h1 className="text-3xl font-bold text-white">Register Your Company</h1>
+                    <div className="relative rounded-lg overflow-hidden p-8 mb-8" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1932&auto=format&fit=crop')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                        <div className="absolute inset-0 bg-black opacity-60"></div>
+                        <div className="relative">
+                            <h1 className="text-3xl font-bold text-white">{formData._id ? "Edit Company Profile" : "Register Your Company"}</h1>
                             <p className="mt-2 text-gray-200">Join CodFleet to find top-tier freelance talent for your projects.</p>
-                         </div>
+                        </div>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-8">
@@ -138,19 +288,19 @@ const CompanyRegistration = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Company Name</label>
-                                    <input type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                                    <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Business ID</label>
-                                    <input type="text" value={businessID} onChange={(e) => setBusinessID(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                                    <input type="text" name="businessID" value={formData.businessID} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">VAT Number</label>
-                                    <input type="text" value={vatNumber} onChange={(e) => setVatNumber(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+                                    <input type="text" name="vatNumber" value={formData.vatNumber} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Industry</label>
-                                    <select value={industry} onChange={(e) => setIndustry(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                                    <select name="industry" value={formData.industry} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                                         <option value="">Select your industry</option>
                                         <option value="IT">Information Technology</option>
                                         <option value="Finance">Finance</option>
@@ -159,40 +309,40 @@ const CompanyRegistration = () => {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Contact Person</label>
-                                    <input type="text" value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                                    <input type="text" name="contactPerson" value={formData.contactPerson} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Email Address</label>
-                                    <input type="email" value={emailAddress} readOnly className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed" />
+                                    <input type="email" name="emailAddress" value={formData.emailAddress} readOnly className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Phone Number</label>
-                                    <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                                    <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
                                 </div>
                             </div>
                         </div>
 
                         {/* Section 2: Legal & Compliance */}
                         <div className="bg-white p-6 rounded-lg shadow-sm">
-                             <div className="flex items-center gap-4 mb-6">
+                            <div className="flex items-center gap-4 mb-6">
                                 <span className="flex items-center justify-center w-8 h-8 bg-gray-800 text-white font-bold rounded-full">2</span>
                                 <h2 className="text-xl font-bold text-gray-900">Legal & Compliance</h2>
                             </div>
                             <div className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <FileUpload title="Tax Debt Certificate" file={taxDebtCertificate} onFileChange={setTaxDebtCertificate} />
-                                    <FileUpload title="Pension Insurance Certificate" file={pensionInsuranceCertificate} onFileChange={setPensionInsuranceCertificate} />
+                                    <FileUpload title="Tax Debt Certificate" file={formData.taxDebtCertificate} onFileChange={(file) => handleFileChange('taxDebtCertificate', file)} />
+                                    <FileUpload title="Pension Insurance Certificate" file={formData.pensionInsuranceCertificate} onFileChange={(file) => handleFileChange('pensionInsuranceCertificate', file)} />
                                 </div>
                                 <div>
-                                    <FileUpload title="Worker's Compensation Insurance" file={workersCompensationInsurance} onFileChange={setWorkersCompensationInsurance} />
+                                    <FileUpload title="Worker's Compensation Insurance" file={formData.workersCompensationInsurance} onFileChange={(file) => handleFileChange('workersCompensationInsurance', file)} />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Billing Address</label>
-                                    <input type="text" value={billingAddress} onChange={(e) => setBillingAddress(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                                    <input type="text" name="billingAddress" value={formData.billingAddress} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Preferred Payment Method</label>
-                                    <select value={preferredPaymentMethod} onChange={(e) => setPreferredPaymentMethod(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                                    <select name="preferredPaymentMethod" value={formData.preferredPaymentMethod} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                                         <option value="">Select payment method</option>
                                         <option value="Credit Card">Credit Card</option>
                                         <option value="Bank Transfer">Bank Transfer</option>
@@ -210,7 +360,7 @@ const CompanyRegistration = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Estimated Workforce Needs</label>
-                                    <select value={estimatedWorkforceNeeds} onChange={(e) => setEstimatedWorkforceNeeds(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                                    <select name="estimatedWorkforceNeeds" value={formData.estimatedWorkforceNeeds} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                                         <option value="">Select workforce size</option>
                                         <option value="Small">Small (1-10)</option>
                                         <option value="Medium">Medium (11-50)</option>
@@ -219,7 +369,7 @@ const CompanyRegistration = () => {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Preferred Work Sectors</label>
-                                    <select value={preferredWorkSectors} onChange={(e) => setPreferredWorkSectors(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                                    <select name="preferredWorkSectors" value={formData.preferredWorkSectors} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                                         <option value="">Select preferred sectors</option>
                                         <option value="Technology">Technology</option>
                                         <option value="Marketing">Marketing</option>
@@ -229,11 +379,11 @@ const CompanyRegistration = () => {
                             </div>
                             <div className="mt-6 space-y-3">
                                 <div className="flex items-start">
-                                    <input type="checkbox" id="termsOfService" checked={termsOfService} onChange={(e) => setTermsOfService(e.target.checked)} className="h-4 w-4 text-red-600 border-gray-300 rounded mt-1" required />
+                                    <input type="checkbox" id="termsOfService" name="termsOfService" checked={formData.termsOfService} onChange={handleChange} className="h-4 w-4 text-red-600 border-gray-300 rounded mt-1" required />
                                     <label htmlFor="termsOfService" className="ml-2 block text-sm text-gray-900">I agree to the <a href="#" className="font-medium text-red-600 hover:text-red-500">Terms of Service</a>.</label>
                                 </div>
                                 <div className="flex items-start">
-                                    <input type="checkbox" id="privacyPolicy" checked={privacyPolicy} onChange={(e) => setPrivacyPolicy(e.target.checked)} className="h-4 w-4 text-red-600 border-gray-300 rounded mt-1" required />
+                                    <input type="checkbox" id="privacyPolicy" name="privacyPolicy" checked={formData.privacyPolicy} onChange={handleChange} className="h-4 w-4 text-red-600 border-gray-300 rounded mt-1" required />
                                     <label htmlFor="privacyPolicy" className="ml-2 block text-sm text-gray-900">I consent to the <a href="#" className="font-medium text-red-600 hover:text-red-500">Privacy Policy</a>.</label>
                                 </div>
                             </div>
@@ -244,10 +394,10 @@ const CompanyRegistration = () => {
                                 {message}
                             </div>
                         )}
-                        
+
                         <div className="flex justify-end">
                             <button type="submit" className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg shadow-sm">
-                                Register & Verify Company
+                                {formData._id ? "Update Profile" : "Register & Verify Company"}
                             </button>
                         </div>
                     </form>
@@ -266,14 +416,14 @@ const CompanyRegistration = () => {
                                     <p className="text-sm text-gray-600">Your documents are encrypted and stored securely.</p>
                                 </div>
                             </li>
-                             <li className="flex gap-4">
+                            <li className="flex gap-4">
                                 <Shield className="w-6 h-6 text-gray-500 flex-shrink-0 mt-1" />
                                 <div>
                                     <h4 className="font-semibold">Vetted Professionals</h4>
                                     <p className="text-sm text-gray-600">We verify our freelancers to ensure quality and compliance.</p>
                                 </div>
                             </li>
-                             <li className="flex gap-4">
+                            <li className="flex gap-4">
                                 <CheckCircle className="w-6 h-6 text-gray-500 flex-shrink-0 mt-1" />
                                 <div>
                                     <h4 className="font-semibold">Compliant & Insured</h4>
@@ -283,7 +433,6 @@ const CompanyRegistration = () => {
                         </ul>
                     </div>
                 </div>
-
             </div>
         </div>
     );

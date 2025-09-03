@@ -7,6 +7,7 @@ const freelancerProfileSchema = new mongoose.Schema({
     required: true,
   },
   name: { type: String },
+  email: { type: String }, 
   dob: { type: Date },
   citizenship: { type: String },
   in_finland_since: { type: String }, // MM/YYYY

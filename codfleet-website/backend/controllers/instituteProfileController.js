@@ -86,4 +86,27 @@ const updateInstitute = async (req, res) => {
     }
 };
 
-module.exports = { registerInstitute, updateInstitute };
+// GET /api/institute-profile
+const getInstituteProfile = async (req, res) => {
+    try {
+        console.log("getInstituteProfile called");  // **ADD THIS**
+        console.log("req.user:", req.user);  // **ADD THIS: VERY IMPORTANT!**
+        const userId = req.user.id;
+        console.log("userId:", userId);  // **ADD THIS**
+        const profile = await InstituteProfile.findOne({ user: userId });
+
+        console.log("profile:", profile);  // **ADD THIS**
+
+        if (!profile) {
+            console.log("No profile found");  // **ADD THIS**
+            return res.status(200).json({ success: true, profile: null, message: 'No profile found for this user.' });
+        }
+
+        res.status(200).json({ success: true, profile: profile });
+    } catch (error) {
+        console.error('Error fetching institute profile:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+module.exports = { registerInstitute, updateInstitute , getInstituteProfile};
