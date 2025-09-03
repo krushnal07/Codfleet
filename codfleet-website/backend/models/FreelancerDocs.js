@@ -27,4 +27,3 @@ const freelancerDocsSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("FreelancerDocs", freelancerDocsSchema);
-

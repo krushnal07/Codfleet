@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { Users, Building, FileText, CheckCircle, ArrowRight } from 'lucide-react';
+import { Users, Building, FileText, CheckCircle, ArrowRight, School } from 'lucide-react';
 
 const Network = () => {
   const freelancerRequirements = [
@@ -18,6 +18,13 @@ const Network = () => {
     "Contact details",
     "Staffing needs description",
     "Compliance requirements"
+  ];
+
+  const educationRequirements = [
+    "Official Institution Name",
+    "Partnership Point of Contact",
+    "Description of Partnership Goals",
+    "Details on Relevant Student Programs",
   ];
 
   return (
@@ -44,7 +51,7 @@ const Network = () => {
       {/* Main Cards Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Freelancer Card */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -90,7 +97,7 @@ const Network = () => {
                   </div>
 
                   <Button asChild className="w-full bg-red-600 hover:bg-red-700" size="lg">
-                    <Link to="/auth/register?role=freelancer">
+                    <Link to="/freelancer-profile">
                       Join as Freelancer
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
@@ -144,7 +151,7 @@ const Network = () => {
                   </div>
 
                   <Button asChild className="w-full bg-blue-600 hover:bg-blue-700" size="lg">
-                    <Link to="/auth/register?role=company">
+                    <Link to="/company-register">
                       Join as Company
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
@@ -152,6 +159,61 @@ const Network = () => {
                 </CardContent>
               </Card>
             </motion.div>
+            
+            {/* Education Card */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              <Card className="h-full border-2 border-green-200 hover:border-green-400 transition-colors">
+                <CardContent className="p-8">
+                  <div className="text-center mb-8">
+                    <div className="bg-green-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                      <School className="h-10 w-10 text-green-600" />
+                    </div>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                      For Education
+                    </h2>
+                    <p className="text-lg text-gray-600 mb-6">
+                      Bridge the gap between academia and industry
+                    </p>
+                  </div>
+
+                  <div className="space-y-4 mb-8">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      What you'll get:
+                    </h3>
+                    <ul className="space-y-2">
+                      <li className="flex items-center space-x-3">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <span className="text-gray-600">Internship placements</span>
+                      </li>
+                      <li className="flex items-center space-x-3">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <span className="text-gray-600">Guest lectures from experts</span>
+                      </li>
+                      <li className="flex items-center space-x-3">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <span className="text-gray-600">Real-world projects</span>
+                      </li>
+                      <li className="flex items-center space-x-3">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <span className="text-gray-600">Curriculum support</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <Button asChild className="w-full bg-green-600 hover:bg-green-700" size="lg">
+                    <Link to="/institute-register">
+                      join as Institute
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+
           </div>
         </div>
       </section>
@@ -169,18 +231,18 @@ const Network = () => {
               What You'll Need
             </h2>
             <p className="text-xl text-gray-600">
-              Prepare these documents before you start
+              Prepare this information before you start
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
             {/* Freelancer Requirements */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <Card>
+              <Card className="h-full">
                 <CardContent className="p-8">
                   <div className="flex items-center mb-6">
                     <FileText className="h-8 w-8 text-red-600 mr-3" />
@@ -208,11 +270,11 @@ const Network = () => {
 
             {/* Company Requirements */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, x: 0 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
-              <Card>
+              <Card className="h-full">
                 <CardContent className="p-8">
                   <div className="flex items-center mb-6">
                     <FileText className="h-8 w-8 text-blue-600 mr-3" />
@@ -232,6 +294,38 @@ const Network = () => {
                     <p className="text-sm text-blue-800">
                       <strong>Note:</strong> We'll contact you within 24-48 hours 
                       after registration to discuss your specific needs.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+            {/* Education Partner Requirements */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+            >
+              <Card className="h-full">
+                <CardContent className="p-8">
+                  <div className="flex items-center mb-6">
+                    <School className="h-8 w-8 text-green-600 mr-3" />
+                    <h3 className="text-2xl font-bold text-gray-900">
+                      Education Partner Info
+                    </h3>
+                  </div>
+                  <ul className="space-y-3">
+                    {educationRequirements.map((requirement, index) => (
+                      <li key={index} className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                        <span className="text-gray-700">{requirement}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-6 p-4 bg-green-50 rounded-lg">
+                    <p className="text-sm text-green-800">
+                      <strong>Note:</strong> Our partnerships team will reach out to schedule
+                      an introductory call and formalize our collaboration.
                     </p>
                   </div>
                 </CardContent>
@@ -343,4 +437,3 @@ const Network = () => {
 };
 
 export default Network;
-

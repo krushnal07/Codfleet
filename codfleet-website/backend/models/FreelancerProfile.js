@@ -31,4 +31,3 @@ const freelancerProfileSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("FreelancerProfile", freelancerProfileSchema);
-

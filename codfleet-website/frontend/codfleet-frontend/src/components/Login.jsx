@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+// We no longer need useNavigate for this solution, but you can keep it if used elsewhere.
+// import { useNavigate } from 'react-router-dom'; 
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); // Not needed for the redirect anymore
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -19,17 +20,21 @@ const Login = () => {
       });
 
       if (response.data.success) {
-        // Store the token in localStorage
-        localStorage.setItem('authToken', response.data.token);
+        const { token, user } = response.data;
+        const { name, email,role } = user;
 
-        // Check the user's role and redirect accordingly
-        const userRole = response.data.user.role;
-        if (userRole === 'freelancer') {
-          navigate('/freelancer-profile');
-        } else if (userRole === 'company') {
-          navigate('/company-register'); // Replace with your company dashboard route
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('user', JSON.stringify({ name, email,role}));
+
+        // --- KEY CHANGE HERE ---
+        // Instead of using navigate, use window.location.href to force a full page reload.
+        // This ensures the Navbar re-mounts and reads the new localStorage data.
+        if (role === 'freelancer') {
+          window.location.href = '/join';
+        } else if (role === 'company') {
+          window.location.href = '/company-register'; // Replace with your company dashboard route
         } else {
-          navigate('/default-dashboard'); // Replace with a default dashboard or home page
+          window.location.href = '/dashboard'; // Replace with a default dashboard or home page
         }
       } else {
         setMessage('Login failed. Please check your credentials.');
@@ -43,8 +48,9 @@ const Login = () => {
       }
     }
   };
+ 
 
-
+  // ... rest of your JSX is correct ...
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-md">

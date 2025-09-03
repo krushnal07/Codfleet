@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const RegistrationPage = () => {
   const [email, setEmail] = useState('');
+    const [name, SetName] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('freelancer');
   const [message, setMessage] = useState('');
@@ -15,6 +16,7 @@ const RegistrationPage = () => {
     try {
       const backendURL = 'http://localhost:5000';
       const response = await axios.post(`${backendURL}/api/auth/register`, {
+        name,
         email,
         password,
         role,
@@ -23,6 +25,7 @@ const RegistrationPage = () => {
       if (response.status === 200) { // Expect 200 OK for successful email send
         setMessage('Registration initiated! Please check your email to verify your account.');
         // Optionally, clear the form fields
+        SetName('');
         setEmail('');
         setPassword('');
       } else {
@@ -54,6 +57,20 @@ const RegistrationPage = () => {
         )}
 
         <form onSubmit={handleSubmit}>
+           <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
+              Name:
+            </label>
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="name"
+              type="name"
+              placeholder="name"
+              value={name}
+              onChange={(e) => SetName(e.target.value)}
+              required
+            />
+          </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
               Email:
@@ -98,6 +115,7 @@ const RegistrationPage = () => {
               >
                 <option value="freelancer">Freelancer</option>
                 <option value="company">Company</option>
+                 <option value="institute">Institute</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">

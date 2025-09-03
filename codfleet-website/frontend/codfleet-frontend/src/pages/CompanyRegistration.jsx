@@ -1,230 +1,292 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { UploadCloud, CheckCircle, Lock, Shield } from 'lucide-react'; // Icons
+
+// --- Reusable File Upload Component (Same as before) ---
+const FileUpload = ({ title, file, onFileChange }) => {
+    return (
+        <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{title}</label>
+            <div className="flex justify-center items-center w-full h-32 px-6 border-2 border-gray-300 border-dashed rounded-md">
+                <div className="space-y-1 text-center">
+                    <UploadCloud className="mx-auto h-8 w-8 text-gray-400" />
+                    <div className="flex text-sm text-gray-600">
+                        <label htmlFor={title} className="relative cursor-pointer bg-white rounded-md font-medium text-red-600 hover:text-red-500 focus-within:outline-none">
+                            <span>Upload a file</span>
+                            <input id={title} name={title} type="file" className="sr-only" onChange={(e) => onFileChange(e.target.files[0])} />
+                        </label>
+                        <p className="pl-1">or drag and drop</p>
+                    </div>
+                    <p className="text-xs text-gray-500">PNG, JPG, PDF up to 10MB</p>
+                    {file && <p className="text-xs text-green-600 pt-1">{file.name}</p>}
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const CompanyRegistration = () => {
-  const [companyName, setCompanyName] = useState('');
-  const [businessID, setBusinessID] = useState('');
-  const [vatNumber, setVatNumber] = useState('');
-  const [industry, setIndustry] = useState('');
-  const [contactPerson, setContactPerson] = useState('');
-  const [emailAddress, setEmailAddress] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [taxDebtCertificate, setTaxDebtCertificate] = useState(null);
-  const [pensionInsuranceCertificate, setPensionInsuranceCertificate] = useState(null);
-  const [workersCompensationInsurance, setWorkersCompensationInsurance] = useState(null);
-  const [billingAddress, setBillingAddress] = useState('');
-  const [preferredPaymentMethod, setPreferredPaymentMethod] = useState('');
-  const [estimatedWorkforceNeeds, setEstimatedWorkforceNeeds] = useState('');
-  const [preferredWorkSectors, setPreferredWorkSectors] = useState('');
-  const [termsOfService, setTermsOfService] = useState(false);
-  const [privacyPolicy, setPrivacyPolicy] = useState(false);
-  const [message, setMessage] = useState('');
-  const navigate = useNavigate();
-    const [token, setToken] = useState(null);
+    // --- State Management (Existing fields) ---
+    const [companyName, setCompanyName] = useState('');
+    const [businessID, setBusinessID] = useState('');
+    const [vatNumber, setVatNumber] = useState('');
+    const [industry, setIndustry] = useState('');
+    const [contactPerson, setContactPerson] = useState('');
+    const [emailAddress, setEmailAddress] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [billingAddress, setBillingAddress] = useState('');
+    const [preferredPaymentMethod, setPreferredPaymentMethod] = useState('');
+    const [estimatedWorkforceNeeds, setEstimatedWorkforceNeeds] = useState('');
+    const [preferredWorkSectors, setPreferredWorkSectors] = useState('');
+    const [termsOfService, setTermsOfService] = useState(false);
+    const [privacyPolicy, setPrivacyPolicy] = useState(false);
+    
+    // File states
+    const [taxDebtCertificate, setTaxDebtCertificate] = useState(null);
+    const [pensionInsuranceCertificate, setPensionInsuranceCertificate] = useState(null);
+    const [workersCompensationInsurance, setWorkersCompensationInsurance] = useState(null);
+
+    // General Component State
+    const [message, setMessage] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const storedToken = localStorage.getItem('authToken');
+        const user = JSON.parse(localStorage.getItem('user'));
+        
         if (!storedToken) {
-            setMessage('Unauthorized: No token found. Please log in.');
-            navigate('/login'); // Redirect to login if no token
-        } else {
-            setToken(storedToken);
+            navigate('/login');
+        }
+        if (user) {
+            setEmailAddress(user.email); // Pre-fill email from logged-in user
         }
     }, [navigate]);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        setMessage('');
 
-    const formData = new FormData();
-    formData.append('companyName', companyName);
-    formData.append('businessID', businessID);
-    formData.append('vatNumber', vatNumber);
-    formData.append('industry', industry);
-    formData.append('contactPerson', contactPerson);
-    formData.append('emailAddress', emailAddress);
-    formData.append('phoneNumber', phoneNumber);
-    formData.append('billingAddress', billingAddress);
-    formData.append('preferredPaymentMethod', preferredPaymentMethod);
-    formData.append('estimatedWorkforceNeeds', estimatedWorkforceNeeds);
-    formData.append('preferredWorkSectors', preferredWorkSectors);
-    formData.append('termsOfService', termsOfService);
-    formData.append('privacyPolicy', privacyPolicy);
+        const formData = new FormData();
+        formData.append('companyName', companyName);
+        formData.append('businessID', businessID);
+        formData.append('vatNumber', vatNumber);
+        formData.append('industry', industry);
+        formData.append('contactPerson', contactPerson);
+        formData.append('emailAddress', emailAddress);
+        formData.append('phoneNumber', phoneNumber);
+        formData.append('billingAddress', billingAddress);
+        formData.append('preferredPaymentMethod', preferredPaymentMethod);
+        formData.append('estimatedWorkforceNeeds', estimatedWorkforceNeeds);
+        formData.append('preferredWorkSectors', preferredWorkSectors);
+        formData.append('termsOfService', termsOfService);
+        formData.append('privacyPolicy', privacyPolicy);
 
-    if (taxDebtCertificate) formData.append('taxDebtCertificate', taxDebtCertificate);
-    if (pensionInsuranceCertificate) formData.append('pensionInsuranceCertificate', pensionInsuranceCertificate);
-    if (workersCompensationInsurance) formData.append('workersCompensationInsurance', workersCompensationInsurance);
+        if (taxDebtCertificate) formData.append('taxDebtCertificate', taxDebtCertificate);
+        if (pensionInsuranceCertificate) formData.append('pensionInsuranceCertificate', pensionInsuranceCertificate);
+        if (workersCompensationInsurance) formData.append('workersCompensationInsurance', workersCompensationInsurance);
+        
+        try {
+            const token = localStorage.getItem('authToken');
+            const backendURL = 'http://localhost:5000';
+            const response = await axios.post(`${backendURL}/api/company/register`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
 
-    try {
-      const backendURL = 'http://localhost:5000';
-      const response = await axios.post(
-        `${backendURL}/api/company/register`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-               Authorization: `Bearer ${token}`,
-            // Add Authorization header if needed
-          },
+            if (response.data.success) {
+                const user = JSON.parse(localStorage.getItem('user'));
+                user.hasCompletedProfile = true;
+                localStorage.setItem('user', JSON.stringify(user));
+
+                setMessage('Company profile submitted successfully! Redirecting...');
+                setTimeout(() => {
+                    navigate('/dashboard');
+                }, 2000);
+            } else {
+                setMessage(response.data.message || 'Registration failed.');
+            }
+        } catch (error) {
+            console.error('Company registration error:', error);
+            setMessage(error.response?.data?.message || 'An unexpected error occurred.');
         }
-      );
+    };
 
-      if (response.data.success) {
-        setMessage('Company registration successful!');
-      } else {
-        setMessage('Company registration failed. Please try again.');
-      }
-    } catch (error) {
-      console.error('Company registration error:', error);
-      setMessage('An error occurred during registration. Please try again later.');
-    }
-  };
+    return (
+        <div className="bg-gray-50 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
+                
+                {/* --- Left Column: Main Form --- */}
+                <div className="lg:col-span-2">
+                    <div className="relative rounded-lg overflow-hidden p-8 mb-8" style={{backgroundImage: "url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1932&auto=format&fit=crop')", backgroundSize: 'cover', backgroundPosition: 'center'}}>
+                         <div className="absolute inset-0 bg-black opacity-60"></div>
+                         <div className="relative">
+                            <h1 className="text-3xl font-bold text-white">Register Your Company</h1>
+                            <p className="mt-2 text-gray-200">Join CodFleet to find top-tier freelance talent for your projects.</p>
+                         </div>
+                    </div>
 
-    if (!token) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-                <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-md">
-                    <h2 className="text-center text-2xl font-bold mb-6 text-gray-800">Unauthorized</h2>
-                    {message && (
-                        <div
-                            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
-                            role="alert"
-                        >
-                            <span className="block sm:inline">{message}</span>
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                        {/* Section 1: Company Details */}
+                        <div className="bg-white p-6 rounded-lg shadow-sm">
+                            <div className="flex items-center gap-4 mb-6">
+                                <span className="flex items-center justify-center w-8 h-8 bg-gray-800 text-white font-bold rounded-full">1</span>
+                                <h2 className="text-xl font-bold text-gray-900">Company Details</h2>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Company Name</label>
+                                    <input type="text" value={companyName} onChange={(e) => setCompanyName(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Business ID</label>
+                                    <input type="text" value={businessID} onChange={(e) => setBusinessID(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">VAT Number</label>
+                                    <input type="text" value={vatNumber} onChange={(e) => setVatNumber(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Industry</label>
+                                    <select value={industry} onChange={(e) => setIndustry(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                                        <option value="">Select your industry</option>
+                                        <option value="IT">Information Technology</option>
+                                        <option value="Finance">Finance</option>
+                                        <option value="Healthcare">Healthcare</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Contact Person</label>
+                                    <input type="text" value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Email Address</label>
+                                    <input type="email" value={emailAddress} readOnly className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                                    <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                                </div>
+                            </div>
                         </div>
-                    )}
+
+                        {/* Section 2: Legal & Compliance */}
+                        <div className="bg-white p-6 rounded-lg shadow-sm">
+                             <div className="flex items-center gap-4 mb-6">
+                                <span className="flex items-center justify-center w-8 h-8 bg-gray-800 text-white font-bold rounded-full">2</span>
+                                <h2 className="text-xl font-bold text-gray-900">Legal & Compliance</h2>
+                            </div>
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <FileUpload title="Tax Debt Certificate" file={taxDebtCertificate} onFileChange={setTaxDebtCertificate} />
+                                    <FileUpload title="Pension Insurance Certificate" file={pensionInsuranceCertificate} onFileChange={setPensionInsuranceCertificate} />
+                                </div>
+                                <div>
+                                    <FileUpload title="Worker's Compensation Insurance" file={workersCompensationInsurance} onFileChange={setWorkersCompensationInsurance} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Billing Address</label>
+                                    <input type="text" value={billingAddress} onChange={(e) => setBillingAddress(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Preferred Payment Method</label>
+                                    <select value={preferredPaymentMethod} onChange={(e) => setPreferredPaymentMethod(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                                        <option value="">Select payment method</option>
+                                        <option value="Credit Card">Credit Card</option>
+                                        <option value="Bank Transfer">Bank Transfer</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Section 3: Platform Use & Agreement */}
+                        <div className="bg-white p-6 rounded-lg shadow-sm">
+                            <div className="flex items-center gap-4 mb-6">
+                                <span className="flex items-center justify-center w-8 h-8 bg-gray-800 text-white font-bold rounded-full">3</span>
+                                <h2 className="text-xl font-bold text-gray-900">Platform Use & Agreement</h2>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Estimated Workforce Needs</label>
+                                    <select value={estimatedWorkforceNeeds} onChange={(e) => setEstimatedWorkforceNeeds(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                                        <option value="">Select workforce size</option>
+                                        <option value="Small">Small (1-10)</option>
+                                        <option value="Medium">Medium (11-50)</option>
+                                        <option value="Large">Large (50+)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Preferred Work Sectors</label>
+                                    <select value={preferredWorkSectors} onChange={(e) => setPreferredWorkSectors(e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                                        <option value="">Select preferred sectors</option>
+                                        <option value="Technology">Technology</option>
+                                        <option value="Marketing">Marketing</option>
+                                        <option value="Design">Design</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="mt-6 space-y-3">
+                                <div className="flex items-start">
+                                    <input type="checkbox" id="termsOfService" checked={termsOfService} onChange={(e) => setTermsOfService(e.target.checked)} className="h-4 w-4 text-red-600 border-gray-300 rounded mt-1" required />
+                                    <label htmlFor="termsOfService" className="ml-2 block text-sm text-gray-900">I agree to the <a href="#" className="font-medium text-red-600 hover:text-red-500">Terms of Service</a>.</label>
+                                </div>
+                                <div className="flex items-start">
+                                    <input type="checkbox" id="privacyPolicy" checked={privacyPolicy} onChange={(e) => setPrivacyPolicy(e.target.checked)} className="h-4 w-4 text-red-600 border-gray-300 rounded mt-1" required />
+                                    <label htmlFor="privacyPolicy" className="ml-2 block text-sm text-gray-900">I consent to the <a href="#" className="font-medium text-red-600 hover:text-red-500">Privacy Policy</a>.</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        {message && (
+                            <div className={`p-4 rounded-md ${message.includes('successfully') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                {message}
+                            </div>
+                        )}
+                        
+                        <div className="flex justify-end">
+                            <button type="submit" className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg shadow-sm">
+                                Register & Verify Company
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </div>
-        );
-    }
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-3xl">
-        <h2 className="text-center text-2xl font-bold mb-6 text-gray-800">Register Your Company with CodFleet</h2>
-        {message && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-            <span className="block sm:inline">{message}</span>
-          </div>
-        )}
-        <form onSubmit={handleSubmit}>
-          {/* Section 1: Company Details */}
-          <div className="mb-6">
-            <h3 className="text-xl font-semibold text-gray-700 mb-3">1. Company Details</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="companyName">Company Name:</label>
-                <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="companyName" type="text" placeholder="Enter your company name" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="businessID">Business ID:</label>
-                <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="businessID" type="text" placeholder="Enter your business ID" value={businessID} onChange={(e) => setBusinessID(e.target.value)} required />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="vatNumber">VAT Number:</label>
-                <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="vatNumber" type="text" placeholder="Enter your VAT number" value={vatNumber} onChange={(e) => setVatNumber(e.target.value)} />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="industry">Industry:</label>
-                <select className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="industry" value={industry} onChange={(e) => setIndustry(e.target.value)} required>
-                  <option value="">Select your industry</option>
-                  <option value="IT">Information Technology</option>
-                  <option value="Finance">Finance</option>
-                  <option value="Healthcare">Healthcare</option>
-                  {/* Add more options as needed */}
-                </select>
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="contactPerson">Contact Person:</label>
-                <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="contactPerson" type="text" placeholder="Enter contact person's name" value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} required />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="emailAddress">Email Address:</label>
-                <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="emailAddress" type="email" placeholder="Enter your email address" value={emailAddress} onChange={(e) => setEmailAddress(e.target.value)} required />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="phoneNumber">Phone Number:</label>
-                <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="phoneNumber" type="tel" placeholder="Enter your phone number" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required />
-              </div>
-            </div>
-          </div>
+                {/* --- Right Column: Trust & Safety --- */}
+                <div className="lg:col-span-1">
+                    <div className="bg-white p-6 rounded-lg shadow-sm sticky top-8">
+                        <h3 className="text-lg font-bold text-gray-900">Trust & Safety</h3>
+                        <p className="text-sm text-gray-600 mt-1">Your information is safe with us.</p>
+                        <ul className="mt-6 space-y-6">
+                            <li className="flex gap-4">
+                                <Lock className="w-6 h-6 text-gray-500 flex-shrink-0 mt-1" />
+                                <div>
+                                    <h4 className="font-semibold">Secure Document Storage</h4>
+                                    <p className="text-sm text-gray-600">Your documents are encrypted and stored securely.</p>
+                                </div>
+                            </li>
+                             <li className="flex gap-4">
+                                <Shield className="w-6 h-6 text-gray-500 flex-shrink-0 mt-1" />
+                                <div>
+                                    <h4 className="font-semibold">Vetted Professionals</h4>
+                                    <p className="text-sm text-gray-600">We verify our freelancers to ensure quality and compliance.</p>
+                                </div>
+                            </li>
+                             <li className="flex gap-4">
+                                <CheckCircle className="w-6 h-6 text-gray-500 flex-shrink-0 mt-1" />
+                                <div>
+                                    <h4 className="font-semibold">Compliant & Insured</h4>
+                                    <p className="text-sm text-gray-600">Our platform ensures all legal and insurance requirements are met.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
 
-          {/* Section 2: Legal & Compliance */}
-          <div className="mb-6">
-            <h3 className="text-xl font-semibold text-gray-700 mb-3">2. Legal & Compliance</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="taxDebtCertificate">Tax Debt Certificate (PNG, JPG, PDF up to 10MB):</label>
-                <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="taxDebtCertificate" type="file" onChange={(e) => setTaxDebtCertificate(e.target.files[0])} />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="pensionInsuranceCertificate">Pension Insurance Certificate (PNG, JPG, PDF up to 10MB):</label>
-                <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="pensionInsuranceCertificate" type="file" onChange={(e) => setPensionInsuranceCertificate(e.target.files[0])} />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="workersCompensationInsurance">Worker's Compensation Insurance (PNG, JPG, PDF up to 10MB):</label>
-                <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="workersCompensationInsurance" type="file" onChange={(e) => setWorkersCompensationInsurance(e.target.files[0])} />
-              </div>
             </div>
-            <div className="mt-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="billingAddress">Billing Address:</label>
-              <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="billingAddress" type="text" placeholder="Enter your billing address" value={billingAddress} onChange={(e) => setBillingAddress(e.target.value)} required />
-            </div>
-            <div className="mt-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="preferredPaymentMethod">Preferred Payment Method:</label>
-              <select className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="preferredPaymentMethod" value={preferredPaymentMethod} onChange={(e) => setPreferredPaymentMethod(e.target.value)} required>
-                <option value="">Select payment method</option>
-                <option value="Credit Card">Credit Card</option>
-                <option value="Bank Transfer">Bank Transfer</option>
-                {/* Add more options as needed */}
-              </select>
-            </div>
-          </div>
-
-          {/* Section 3: Platform Use & Agreement */}
-          <div className="mb-6">
-            <h3 className="text-xl font-semibold text-gray-700 mb-3">3. Platform Use & Agreement</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="estimatedWorkforceNeeds">Estimated Workforce Needs:</label>
-                <select className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="estimatedWorkforceNeeds" value={estimatedWorkforceNeeds} onChange={(e) => setEstimatedWorkforceNeeds(e.target.value)} required>
-                  <option value="">Select estimated workforce size</option>
-                  <option value="Small">Small (1-10)</option>
-                  <option value="Medium">Medium (11-50)</option>
-                  <option value="Large">Large (50+)</option>
-                  {/* Add more options as needed */}
-                </select>
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="preferredWorkSectors">Preferred Work Sectors:</label>
-                <select className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="preferredWorkSectors" value={preferredWorkSectors} onChange={(e) => setPreferredWorkSectors(e.target.value)} required>
-                  <option value="">Select preferred sectors</option>
-                  <option value="Technology">Technology</option>
-                  <option value="Marketing">Marketing</option>
-                  <option value="Design">Design</option>
-                  {/* Add more options as needed */}
-                </select>
-              </div>
-            </div>
-            <div className="mt-4 flex items-center">
-              <input className="mr-2 leading-tight" type="checkbox" id="termsOfService" checked={termsOfService} onChange={(e) => setTermsOfService(e.target.checked)} required />
-              <label className="text-sm text-gray-700" htmlFor="termsOfService">I agree to the <a href="#" className="text-red-600 hover:text-red-800">Terms of Service</a>.</label>
-            </div>
-            <div className="mt-2 flex items-center">
-              <input className="mr-2 leading-tight" type="checkbox" id="privacyPolicy" checked={privacyPolicy} onChange={(e) => setPrivacyPolicy(e.target.checked)} required />
-              <label className="text-sm text-gray-700" htmlFor="privacyPolicy">I consent to the <a href="#" className="text-red-600 hover:text-red-800">Privacy Policy</a>.</label>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="flex items-center justify-center">
-            <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">Register & Verify Company</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+        </div>
+    );
 };
 
 export default CompanyRegistration;
-

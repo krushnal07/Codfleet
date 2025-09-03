@@ -68,16 +68,14 @@ const Home = () => {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button asChild size="lg" className="bg-red-600 hover:bg-red-700">
                   <Link to="/register">
-                    Join as Freelancer
+                    Register
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
                   <Link to="/register/company">Hire with CodFleet</Link>
                 </Button>
-                <Button asChild variant="outline" size="lg">
-                  <Link to="/register/institute">Partner as Institute</Link>
-                </Button>
+                
               </div>
             </motion.div>
 

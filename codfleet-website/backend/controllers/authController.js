@@ -31,7 +31,7 @@ exports.register = async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { email, password, role } = req.body;
+    const {name, email, password, role } = req.body;
 
     // Check if user exists
     let user = await User.findOne({ email });
@@ -48,6 +48,7 @@ exports.register = async (req, res) => {
 
     // Create user (but don't save to the database yet)
     user = new User({
+      name,
       email,
       password_hash,
       role,
@@ -146,6 +147,7 @@ exports.login = async (req, res) => {
       token,
       user: {
         id: user._id,
+        name: user.name,
         email: user.email,
         role: user.role, //Add user role
         status: user.status

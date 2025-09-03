@@ -106,3 +106,4 @@ exports.getDocuments = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+// backend/controllers/freelancerController.js (Example)
