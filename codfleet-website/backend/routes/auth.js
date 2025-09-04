@@ -11,7 +11,7 @@ const router = express.Router();
 router.post('/register', [
   body('email').isEmail().trim().withMessage('Invalid email'),
   body('password').isLength({ min: 10 }).withMessage('Password must be at least 10 characters'),
-  body('role').isIn(['freelancer', 'company']).withMessage('Role must be freelancer or company')
+  body('role').isIn(['freelancer', 'company','institute']).withMessage('Role must be freelancer,company or institute')
 ], authController.register);
 
 // @route   GET /api/auth/verify/:token

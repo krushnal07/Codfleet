@@ -38,11 +38,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/freelancer', require('./routes/freelancer'));
-app.use('/api/company', require('./routes/company'));
 app.use('/api/contact', require('./routes/contact'));
 app.use('/api/stats', require('./routes/stats'));
-
-app.use('/api/freelancer', require('./routes/freelancer'));
 app.use('/api/company', require('./routes/company'));
 app.use('/api/institute-profile', require('./routes/instituteProfile'))
 

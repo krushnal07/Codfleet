@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['freelancer', 'company'],
+    enum: ['freelancer', 'company' , 'institute'],
     required: true,
   },
   status: {
@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+   hasCompletedOnboarding: {
+    type: Boolean,
+    default: false, // new users haven’t filled the role form
+  }
 });
 
 module.exports = mongoose.model('User', userSchema);

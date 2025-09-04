@@ -40,7 +40,7 @@ const registerInstitute = async (req, res) => {
         });
 
         await instituteProfile.save();
-
+    await User.findByIdAndUpdate(req.user.id, { hasCompletedOnboarding: true });
         res.status(201).json({ success: true, message: 'Institute profile registered successfully', profile: instituteProfile });
     } catch (error) {
         console.error('Error registering institute:', error);

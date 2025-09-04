@@ -234,20 +234,15 @@
 
              <div>
                <label className="block text-sm font-medium text-gray-700">Accreditation Type</label>
-               <select
+               <input
+               type="text"
                  name="accreditationType"
                  value={formData.accreditationType}
                  onChange={handleChange}
                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                  required
-               >
-                 <option value="">Select accreditation type</option>
-                 {accreditationTypes.map((type) => (
-                   <option key={type._id} value={type.name}>
-                     {type.name}
-                   </option>
-                 ))}
-               </select>
+               />
+    
              </div>
 
              <div>

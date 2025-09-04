@@ -20,7 +20,7 @@ const getRoleDetails = (role, hasCompletedProfile) => {
     // If the profile is NOT complete, direct the user to the correct setup form.
     switch (role) {
         case 'freelancer': 
-            return { link: '/freelancer-profile-setup', linkText: 'Complete Profile' };
+            return { link: '/freelancer-profile', linkText: 'Complete Profile' };
         case 'company': 
             return { link: '/company-profile-setup', linkText: 'Complete Profile' };
         case 'institute': 
@@ -54,6 +54,7 @@ const Navbar = () => {
     };
 
     const navigation = [
+        { name: 'Dashboard  ', href: '/dashboard' },
         { name: 'Story', href: '/story' },
         { name: 'Network', href: '/network' },
         { name: 'Fleet Strength', href: '/fleet-strength' },

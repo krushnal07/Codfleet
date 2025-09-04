@@ -16,7 +16,7 @@ exports.createOrUpdateProfile = async (req, res) => {
        name: req.body.name,              // Use req.body directly
        dob: req.body.dob,                // Use req.body directly
        citizenship: req.body.citizenship,  // Use req.body directly
-       in_finland_since: req.body.inFinlandSince, // Use req.body directly
+      in_finland_since: req.body.inFinlandSince.replace('-', '/').slice(0, 7),
        visa_type: req.body.visaType,          // Use req.body directly
        visa_valid_till: req.body.visaValidTill, // Use req.body directly
        y_tunnus: req.body.businessId,          // Use req.body directly, map to the correct field
@@ -39,7 +39,7 @@ exports.createOrUpdateProfile = async (req, res) => {
        profile = new FreelancerProfile(profileData);
        await profile.save();
      }
-
+     await User.findByIdAndUpdate(req.user.id, { hasCompletedOnboarding: true });
      res.json({
        success: true,
        profile
@@ -118,23 +118,27 @@ exports.getDocuments = async (req, res) => {
 };
 
  exports.getFreelancerProfile = async (req, res) => {
-     try {
-         const userId = req.user.id;
+   try {
+     const userId = req.user.id;
 
-         const profile = await FreelancerProfile.findOne({ user_id: userId });
+     const profile = await FreelancerProfile.findOne({ user_id: userId });
 
-         if (!profile) {
-             return res.status(200).json({ success: true, profile: null, message: 'No freelancer profile found for this user.' });
-         }
-
-         res.json({
-             success: true,
-             profile
-         });
-     } catch (error) {
-         console.error(error);
-         res.status(500).json({ message: 'Server error' });
+     if (!profile) {
+       return res.status(200).json({ success: true, profile: null, message: 'No freelancer profile found for this user.' });
      }
+
+     // Fetch the documents
+     const documents = await FreelancerDocs.find({ user_id: userId });
+
+     res.json({
+       success: true,
+       profile,
+       documents, // Include the documents in the response
+     });
+   } catch (error) {
+     console.error(error);
+     res.status(500).json({ message: 'Server error' });
+   }
  };
 
  exports.updateFreelancerProfile = async (req, res) => {

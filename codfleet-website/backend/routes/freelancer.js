@@ -7,6 +7,23 @@ const upload = require('../middleware/upload');
 const router = express.Router();
 
  router.get('/profile', auth, authorize('freelancer'), freelancerController.getFreelancerProfile);
+ router.post(
+  '/profile',
+  auth,
+  authorize('freelancer'),
+  [
+    body('name').notEmpty().withMessage('Name is required'),
+    body('dob').isISO8601().withMessage('Valid date of birth is required'),
+    body('citizenship').notEmpty().withMessage('Citizenship is required'),
+    body('inFinlandSince')
+  .isISO8601() // Accept standard date format YYYY-MM-DD
+  .withMessage('Valid date of birth is required'), 
+    body('visaType').notEmpty().withMessage('Visa type is required'),
+    body('phone').notEmpty().withMessage('Phone is required'),
+    body('city').notEmpty().withMessage('City is required')
+  ],
+  freelancerController.createOrUpdateProfile
+);
  router.put(
      '/profile/update',
      auth,

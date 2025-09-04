@@ -42,10 +42,6 @@ function App() {
           <Routes>
             <Route path="/register" element={<RegistrationPage />} />
             <Route path="/login" element={<Login />} />
-              <Route 
-            path="freelancer-profile-setup" 
-            element={<ProfileCompletionGuard><FreelancerProfile /></ProfileCompletionGuard>} 
-          />
              <Route 
             path="company-profile-setup" 
             element={<ProfileCompletionGuard><CompanyRegistration /></ProfileCompletionGuard>} 

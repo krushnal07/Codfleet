@@ -17,7 +17,7 @@ const getRoleDetails = (role, hasCompletedProfile) => {
     // If profile is NOT complete, point to the respective setup form
     switch (role) {
         case 'freelancer':
-            return { icon: <UserCircle className="w-4 h-4 mr-2" />, link: '/freelancer-profile-setup', linkText: 'View Form Details' };
+            return { icon: <UserCircle className="w-4 h-4 mr-2" />, link: '/freelancer-profile', linkText: 'View Form Details' };
         case 'company':
             return { icon: <Building className="w-4 h-4 mr-2" />, link: '/company-register', linkText: 'View Form Details' };
         case 'institute':

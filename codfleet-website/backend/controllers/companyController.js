@@ -52,7 +52,7 @@ exports.registerCompany = async (req, res) => {
 
     const newCompany = new CompanyProfile(profileData);
     await newCompany.save();
-
+   await User.findByIdAndUpdate(req.user.id, { hasCompletedOnboarding: true });
     res.status(201).json({
       success: true,
       message: 'Company profile created successfully'

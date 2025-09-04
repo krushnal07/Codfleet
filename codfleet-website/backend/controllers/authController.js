@@ -143,16 +143,18 @@ exports.login = async (req, res) => {
     console.log('Generated token:', token); // Log generated token
 
     res.json({
-      success: true,
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role, //Add user role
-        status: user.status
-      }
-    });
+  success: true,
+  token,
+  user: {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    status: user.status,
+    hasCompletedOnboarding: user.hasCompletedOnboarding, // ✅ new field
+  }
+});
+
     console.log('Login successful, response sent'); // Log before sending response
 
   } catch (error) {

@@ -21,21 +21,24 @@ const Login = () => {
 
       if (response.data.success) {
         const { token, user } = response.data;
-        const { name, email,role } = user;
+        const { name, email,role , hasCompletedOnboarding} = user;
 
         localStorage.setItem('authToken', token);
-        localStorage.setItem('user', JSON.stringify({ name, email,role}));
+  localStorage.setItem('user', JSON.stringify({ name, email, role, hasCompletedOnboarding }));
 
-        // --- KEY CHANGE HERE ---
-        // Instead of using navigate, use window.location.href to force a full page reload.
-        // This ensures the Navbar re-mounts and reads the new localStorage data.
-        if (role === 'freelancer') {
-          window.location.href = '/join';
-        } else if (role === 'company') {
-          window.location.href = '/company-register'; // Replace with your company dashboard route
-        } else {
-          window.location.href = '/dashboard'; // Replace with a default dashboard or home page
-        }
+  if (!hasCompletedOnboarding) {
+    // user hasn’t filled form → redirect to role-based registration
+    if (role === 'freelancer') {
+      window.location.href = '/freelancer-profile';
+    } else if (role === 'company') {
+      window.location.href = '/company-register';
+    } else if (role === 'institute') {
+      window.location.href = '/institute-register';
+    }
+  } else {
+    // user already completed onboarding → dashboard
+    window.location.href = '/dashboard';
+  }
       } else {
         setMessage('Login failed. Please check your credentials.');
       }
