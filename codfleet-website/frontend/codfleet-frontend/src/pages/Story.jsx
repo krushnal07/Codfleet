@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import krushnal from "@/assets/Krushnal.jpg"
+import krushnal from "@/assets/krushnal.jpg"
 import { TrendingUp, Users, FileCheck, Briefcase, Landmark, Handshake, ShieldCheck, Euro } from 'lucide-react';
 
 const Story = () => {
