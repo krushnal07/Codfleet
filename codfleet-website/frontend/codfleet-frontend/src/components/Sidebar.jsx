@@ -13,7 +13,7 @@ const Sidebar = () => {
   };
 
   const sidebarLinks = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Home', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Tasks', href: '/tasks', icon: CheckSquare },
     { name: 'Freelancers', href: '/freelancers', icon: Users },
     { name: 'Invoices', href: '/invoices', icon: FileText },

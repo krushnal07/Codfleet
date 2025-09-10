@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -48,6 +49,8 @@ const CompanyRegistration = () => {
         workersCompensationInsurance: null,
     });
 
+    const [validationErrors, setValidationErrors] = useState({}); // State for validation errors
+
     // General Component State
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(true);
@@ -77,16 +80,70 @@ const CompanyRegistration = () => {
     }, [navigate]);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value, type, checked } = e.target;
+        const newValue = type === 'checkbox' ? checked : value;  // Handle checkbox
+
+        setFormData({ ...formData, [name]: newValue });
+
+        // Clear any existing validation error for this field
+        setValidationErrors(prevErrors => ({ ...prevErrors, [name]: '' }));
+
+        // Perform real-time validation (optional - can also just validate on submit)
+        if (name === 'vatNumber') {
+            validateVatNumber(value);
+        } else if (name === 'phoneNumber') {
+            validatePhoneNumber(value);
+        } else if (name === 'emailAddress') {
+            validateEmailAddress(value);
+        }
     };
 
     const handleFileChange = (name, file) => {
         setFormData({ ...formData, [name]: file });
     };
+    const validateVatNumber = (vatNumber) => {
+        // Example: Validate for a 14-character VAT number starting with FI
+        const vatNumberRegex = /^FI\d{12}$/;
+        if (vatNumber && !vatNumberRegex.test(vatNumber)) {
+            setValidationErrors(prevErrors => ({ ...prevErrors, vatNumber: 'VAT number must start with FI and be followed by 12 digits.' }));
+            return false;
+        }
+        return true;
+    };
+
+    const validatePhoneNumber = (phoneNumber) => {
+        // Example: Validate for a 10-digit phone number (adjust as needed)
+        const phoneNumberRegex = /^\d{10}$/;
+        if (!phoneNumberRegex.test(phoneNumber)) {
+            setValidationErrors(prevErrors => ({ ...prevErrors, phoneNumber: 'Phone number must be 10 digits.' }));
+            return false;
+        }
+        return true;
+    };
+
+    const validateEmailAddress = (emailAddress) => {
+        // Basic email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailAddress)) {
+            setValidationErrors(prevErrors => ({ ...prevErrors, emailAddress: 'Invalid email address.' }));
+            return false;
+        }
+        return true;
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         setMessage('');
+        setValidationErrors({});
+
+        const isVatNumberValid = validateVatNumber(formData.vatNumber);
+        const isPhoneNumberValid = validatePhoneNumber(formData.phoneNumber);
+        const isEmailAddressValid = validateEmailAddress(formData.emailAddress);
+
+        if (!isVatNumberValid || !isPhoneNumberValid || !isEmailAddressValid) {
+            setMessage("Please correct the errors in the form.");
+            return;
+        }
 
         const isUpdate = !!formData._id; // Determine if it's an update or a create
         const url = isUpdate ? 'http://localhost:5000/api/company/company-profile/update' : 'http://localhost:5000/api/company/register';
@@ -104,8 +161,9 @@ const CompanyRegistration = () => {
         formDataToSend.append('preferredPaymentMethod', formData.preferredPaymentMethod);
         formDataToSend.append('estimatedWorkforceNeeds', formData.estimatedWorkforceNeeds);
         formDataToSend.append('preferredWorkSectors', formData.preferredWorkSectors);
-        formDataToSend.append('termsOfService', formData.termsOfService);
-        formDataToSend.append('privacyPolicy', formData.privacyPolicy);
+        formDataToSend.append('termsOfService', formData.termsOfService); //boolean value
+        formDataToSend.append('privacyPolicy', formData.privacyPolicy);   //boolean value
+
 
         if (formData.taxDebtCertificate) formDataToSend.append('taxDebtCertificate', formData.taxDebtCertificate);
         if (formData.pensionInsuranceCertificate) formDataToSend.append('pensionInsuranceCertificate', formData.pensionInsuranceCertificate);
@@ -297,6 +355,9 @@ const CompanyRegistration = () => {
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">VAT Number</label>
                                     <input type="text" name="vatNumber" value={formData.vatNumber} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+                                    {validationErrors.vatNumber && (
+                                        <p className="text-red-500 text-xs mt-1">{validationErrors.vatNumber}</p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Industry</label>
@@ -313,11 +374,17 @@ const CompanyRegistration = () => {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Email Address</label>
-                                    <input type="email" name="emailAddress" value={formData.emailAddress} readOnly className="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed" />
+                                    <input type="email" name="emailAddress" value={formData.emailAddress} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+                                    {validationErrors.emailAddress && (
+                                        <p className="text-red-500 text-xs mt-1">{validationErrors.emailAddress}</p>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Phone Number</label>
                                     <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required />
+                                    {validationErrors.phoneNumber && (
+                                        <p className="text-red-500 text-xs mt-1">{validationErrors.phoneNumber}</p>
+                                    )}
                                 </div>
                             </div>
                         </div>

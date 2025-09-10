@@ -1,5 +1,6 @@
 const { validationResult } = require('express-validator');
 const CompanyProfile = require('../models/CompanyProfile');
+const User = require('../models/User');
 const multer = require('multer');
 const path = require('path');
 

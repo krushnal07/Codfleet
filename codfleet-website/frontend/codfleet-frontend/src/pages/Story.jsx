@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
+import krushnal from "@/assets/Krushnal.jpg"
 import { TrendingUp, Users, FileCheck, Briefcase, Landmark, Handshake, ShieldCheck, Euro } from 'lucide-react';
 
 const Story = () => {
@@ -45,6 +46,11 @@ const Story = () => {
       description: "Expanding our verified network and opening real career pathways for all workers."
     }
   ];
+  const SectionHeader = ({ title }) => (
+    <div className="text-center">
+        <h2 className="text-3xl font-bold uppercase tracking-widest text-brand-navy">{title}</h2>
+    </div>
+);
 
   return (
     <div className="min-h-screen">
@@ -316,6 +322,34 @@ const Story = () => {
           </div>
         </div>
       </section>
+       
+
+                        {/* Team Section */}
+                        <section className="flex flex-col items-center gap-12">
+                            <SectionHeader title="The CodFleet Team" />
+                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
+                                <div className="flex flex-col items-center text-center gap-4 rounded-lg bg-white border border-brand-border p-8 shadow-sm">
+                                    <img className="w-32 h-32 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCu3_tb_upsUcoi5fatUOHeC9eBPRqxv-BxkDhHiUXvZz8Ai_gPS9yIOCXvY2SF132r82QPE9QX9XNWeS16d5haNmDETplFWgHzt5UpIxfRh2oA3hMvntPTH0eSbL3R13OZ2GNnFe6Nzd01BmeS5kaY2oaXlcUDP7VgimwyWLOIVI3NQozF9c-4QYFKdf9Gj_hq9PelOaT9-tBGCwnTocWdNb5zZha7xkzRAQYfuWbdTuztXkSY2ICeXvcDdHNqC3WoDfT7NRY7vzU" alt="Yash Panchal"/>
+                                    <h4 className="text-brand-text-dark text-xl font-bold leading-tight mt-2">Yash Panchal</h4>
+                                    <p className="text-brand-text-muted text-base font-medium">Founder &amp; CEO</p>
+                                    <p className="text-brand-text-muted text-base">The visionary driving the mission. Yash combines firsthand experience with a passion for technology to build a more equitable workforce.</p>
+                                </div>
+                                <div className="flex flex-col items-center text-center gap-4 rounded-lg bg-white border border-brand-border p-8 shadow-sm">
+                                    
+                                     <img className="w-32 h-32 rounded-full object-cover" src={krushnal}
+  alt="Krushnal"/>
+                                    <h4 className="text-brand-text-dark text-xl font-bold leading-tight mt-2">Krushnal</h4>
+                                    <p className="text-brand-text-muted text-base font-medium">AI Compliance Engine</p>
+                                    <p className="text-brand-text-muted text-base">The intelligence behind our compliance. Kaizen is our proprietary AI, ensuring every contract and connection meets Finland's legal standards.</p>
+                                </div>
+                                <div className="flex flex-col items-center text-center gap-4 rounded-lg bg-white border border-brand-border p-8 shadow-sm">
+                                    <div className="w-32 h-32 rounded-full bg-brand-card-icon-bg flex items-center justify-center"><span className="material-symbols-outlined text-6xl text-brand-navy">lightbulb</span></div>
+                                    <h4 className="text-brand-text-dark text-xl font-bold leading-tight mt-2">Lumen</h4>
+                                    <p className="text-brand-text-muted text-base font-medium">AI Matching &amp; Growth Partner</p>
+                                    <p className="text-brand-text-muted text-base">The spark that connects talent with opportunity. Lumen analyzes skills and aspirations to create perfect matches and illuminate career paths.</p>
+                                </div>
+                            </div>
+                        </section>
 
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-red-600 to-red-700 text-white">
