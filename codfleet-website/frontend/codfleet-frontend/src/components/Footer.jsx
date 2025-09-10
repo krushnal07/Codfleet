@@ -12,7 +12,7 @@ const Footer = () => {
               <span className="text-2xl font-bold text-red-500">CodFleet</span>
             </Link>
             <p className="text-gray-300 mb-4 max-w-md">
-              CodFleet Oy — Compliant Workforce Network. We're not an employer or staffing agency.
+              CodFleet — Compliant Workforce Network.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
@@ -86,7 +86,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center">
           <p className="text-gray-400">
-            © {new Date().getFullYear()} CodFleet Oy. All rights reserved.
+            © {new Date().getFullYear()} CodFleet. All rights reserved.
           </p>
         </div>
       </div>
