@@ -3,7 +3,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X, Bot } from 'lucide-react'; // --- NEW: Imported Bot icon ---
 import ProfileDropdown from './ProfileDropdown';
-import { motion, AnimatePresence } from 'framer-motion'; // --- NEW: For animations ---
+import { motion, AnimatePresence } from 'framer-motion';
+import black1 from '@/assets/black1.png'; // --- NEW: For animations ---
 
 // (The getRoleDetails helper function remains the same)
 const getRoleDetails = (role, hasCompletedProfile) => {
@@ -76,7 +77,14 @@ const Navbar = () => {
                         {/* Left Side: Logo */}
                         <div className="flex items-center">
                             <Link to="/" className="flex-shrink-0">
-                                <span className="text-2xl font-bold text-red-600">CodFleet</span>
+                                {/* <span className="text-2xl font-bold text-red-600">CodFleet</span> */}
+                                <img src={black1} alt="codfleet-logo" className='h-8 w-auto'></img>
+
+
+
+
+
+
                             </Link>
                         </div>
 
