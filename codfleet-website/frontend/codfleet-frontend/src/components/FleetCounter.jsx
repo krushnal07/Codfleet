@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-const FleetCounter = ({ targetCount = 1247, label = "Freelancers Verified" }) => {
+const FleetCounter = ({ targetCount = 50, label = "Freelancers Verified" }) => {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
